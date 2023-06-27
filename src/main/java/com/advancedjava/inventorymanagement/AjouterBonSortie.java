@@ -11,12 +11,12 @@ import javax.swing.JOptionPane;
  *
  * @author Cedric
  */
-public class AjouterBonEntree extends javax.swing.JFrame {
+public class AjouterBonSortie extends javax.swing.JFrame {
 
     /**
-     * Creates new form AjouterBonEntree
+     * Creates new form AjouterBonSortie
      */
-    public AjouterBonEntree() {
+    public AjouterBonSortie() {
         initComponents();
     }
 
@@ -37,7 +37,7 @@ public class AjouterBonEntree extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        num_entree_add_txt = new javax.swing.JTextField();
+        num_sortie_add_txt = new javax.swing.JTextField();
         num_produit_add_txt = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         quantité_add_txt = new javax.swing.JTextField();
@@ -59,7 +59,7 @@ public class AjouterBonEntree extends javax.swing.JFrame {
 
         jLabel15.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel15.setText("- Ajout Bon d'entrée -");
+        jLabel15.setText("- Ajout Bon de sortie -");
         jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 50, 190, -1));
 
         jLabel17.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
@@ -91,6 +91,9 @@ public class AjouterBonEntree extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel4MouseClicked(evt);
             }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabel4MousePressed(evt);
+            }
         });
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 0, 30, 30));
 
@@ -104,14 +107,14 @@ public class AjouterBonEntree extends javax.swing.JFrame {
         jLabel1.setText("Numéro :");
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
 
-        num_entree_add_txt.setBackground(new java.awt.Color(255, 255, 255));
-        num_entree_add_txt.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(102, 102, 102))); // NOI18N
-        num_entree_add_txt.addActionListener(new java.awt.event.ActionListener() {
+        num_sortie_add_txt.setBackground(new java.awt.Color(255, 255, 255));
+        num_sortie_add_txt.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(102, 102, 102))); // NOI18N
+        num_sortie_add_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                num_entree_add_txtActionPerformed(evt);
+                num_sortie_add_txtActionPerformed(evt);
             }
         });
-        jPanel3.add(num_entree_add_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 22, 210, 40));
+        jPanel3.add(num_sortie_add_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 22, 210, 40));
 
         num_produit_add_txt.setBackground(new java.awt.Color(255, 255, 255));
         num_produit_add_txt.addActionListener(new java.awt.event.ActionListener() {
@@ -209,12 +212,12 @@ public class AjouterBonEntree extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel13AncestorAdded
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
-//        AjoutClient.super.dispose();
+        //        AjoutClient.super.dispose();
     }//GEN-LAST:event_jLabel13MouseClicked
 
-    private void num_entree_add_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_entree_add_txtActionPerformed
+    private void num_sortie_add_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_sortie_add_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_num_entree_add_txtActionPerformed
+    }//GEN-LAST:event_num_sortie_add_txtActionPerformed
 
     private void num_produit_add_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_produit_add_txtActionPerformed
         // TODO add your handling code here:
@@ -228,16 +231,16 @@ public class AjouterBonEntree extends javax.swing.JFrame {
         try {
             // Construct the JSON body for creating the item
             String jsonBody = "{\n"
-                    + "    \"numBondeEntree\": \"" + num_entree_add_txt.getText() + "\",\n"
-                    + "    \"numProduit\": \"" + num_produit_add_txt.getText() + "\",\n"
-                    + "    \"qteEntree\": \"" + quantité_add_txt.getText() + "\",\n"
-                    + "    \"dateEntree\": \"" + date_add_txt.getText() + "\"\n"
-                    + "}";
+            + "    \"numBondeSortie\": \"" + num_sortie_add_txt.getText() + "\",\n"
+            + "    \"numProduit\": \"" + num_produit_add_txt.getText() + "\",\n"
+            + "    \"qteSortie\": \"" + quantité_add_txt.getText() + "\",\n"
+            + "    \"dateSortie\": \"" + date_add_txt.getText() + "\"\n"
+            + "}";
 
             // Make the HTTP POST request to create the item
-            String endpoint = "/entree";
+            String endpoint = "/sortie";
             HttpCallActions.POST(endpoint, jsonBody, HttpCallActions.getNonSSLClient());
-            JOptionPane.showMessageDialog(null, "Bon d'entrée créé !");
+            JOptionPane.showMessageDialog(null, "Bon de sortie créé !");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,7 +251,7 @@ public class AjouterBonEntree extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        num_entree_add_txt.setText("");
+        num_sortie_add_txt.setText("");
         num_produit_add_txt.setText("");
     }//GEN-LAST:event_jButton1MouseClicked
 
@@ -260,8 +263,12 @@ public class AjouterBonEntree extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_date_add_txtActionPerformed
 
+    private void jLabel4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel4MousePressed
+
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
-        AjouterBonEntree.super.dispose();
+        AjouterBonSortie.super.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
 
     /**
@@ -281,20 +288,20 @@ public class AjouterBonEntree extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AjouterBonEntree.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AjouterBonSortie.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AjouterBonEntree.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AjouterBonSortie.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AjouterBonEntree.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AjouterBonSortie.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AjouterBonEntree.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AjouterBonSortie.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AjouterBonEntree().setVisible(true);
+                new AjouterBonSortie().setVisible(true);
             }
         });
     }
@@ -315,8 +322,8 @@ public class AjouterBonEntree extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField num_entree_add_txt;
     private javax.swing.JTextField num_produit_add_txt;
+    private javax.swing.JTextField num_sortie_add_txt;
     private javax.swing.JTextField quantité_add_txt;
     // End of variables declaration//GEN-END:variables
 }

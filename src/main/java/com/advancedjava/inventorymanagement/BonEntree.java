@@ -4,6 +4,18 @@
  */
 package com.advancedjava.inventorymanagement;
 
+import com.advancedjava.invetorymanagement.httpappache.HttpCallActions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ParseException;
+
 /**
  *
  * @author Cedric
@@ -13,8 +25,47 @@ public class BonEntree extends javax.swing.JFrame {
     /**
      * Creates new form BonEntree
      */
-    public BonEntree() {
+    public BonEntree() throws ParseException {
         initComponents();
+        getAllEntree();
+    }
+
+    private void getAllEntree() throws ParseException {
+        String[] Matériel = {"Num bon d'entrée", "Num produit", "Quantité", "Date"};
+        String[] Ajouter = new String[4];
+        DefaultTableModel model = new DefaultTableModel(null, Matériel);
+        String endpoint = "/entree";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        JsonArray responseData = HttpCallActions.GET(endpoint, HttpCallActions.getNonSSLClient());
+
+        if (responseData != null) {
+            System.out.println("Response Data: " + responseData);
+
+            // Iterate over the elements in the JsonArray
+            for (JsonElement element : responseData) {
+                if (element.isJsonObject()) {
+                    JsonObject jsonObject = element.getAsJsonObject();
+
+                    // Access the properties of each object in the JsonArray
+                    String numBondeEntree = jsonObject.get("numBondeEntree").getAsString();
+                    String numProduit = jsonObject.get("numProduit").getAsString();
+                    int qteEntree = jsonObject.get("qteEntree").getAsInt();
+                    String dateEntree = jsonObject.get("dateEntree").getAsString();
+
+                    // Process the retrieved data as needed
+                    System.out.println("numBondeEntree: " + numBondeEntree);
+                    System.out.println("numProduit: " + numProduit);
+                    System.out.println("qteEntree: " + qteEntree);
+                    System.out.println("dateEntree: " + dateEntree);
+
+                    // Add the data to your table model or perform other operations
+                    model.addRow(new Object[]{numBondeEntree, numProduit, qteEntree, dateEntree});
+                }
+            }
+            jTable1.setModel(model);
+        } else {
+            System.out.println("No response data received.");
+        }
     }
 
     /**
@@ -29,14 +80,13 @@ public class BonEntree extends javax.swing.JFrame {
         MenuContent = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        num_pro_update_txt = new javax.swing.JTextField();
+        num_bonEntree_update_txt = new javax.swing.JTextField();
         num_produit_update_txt = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -45,6 +95,7 @@ public class BonEntree extends javax.swing.JFrame {
         delete_btn = new javax.swing.JButton();
         jLabel17 = new javax.swing.JLabel();
         date_entree_update_txt1 = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
         SidebarPanel = new javax.swing.JPanel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
@@ -60,7 +111,12 @@ public class BonEntree extends javax.swing.JFrame {
         MenuContent.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_add.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_add.png")); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
         MenuContent.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 10, 40, 50));
 
         jLabel5.setBackground(new java.awt.Color(0, 0, 86));
@@ -68,10 +124,7 @@ public class BonEntree extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(0, 0, 86));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Bon d'entrée");
-        MenuContent.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 20, 160, 40));
-
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_left_arrow.png"))); // NOI18N
-        MenuContent.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(37, 20, 40, 40));
+        MenuContent.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 160, 40));
 
         jSeparator2.setBackground(new java.awt.Color(255, 255, 255));
         jSeparator2.setForeground(new java.awt.Color(204, 204, 204));
@@ -88,9 +141,14 @@ public class BonEntree extends javax.swing.JFrame {
 
             }
         ));
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTable1MouseReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
-        MenuContent.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 420, 400));
+        MenuContent.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 420, 360));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 86));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -108,18 +166,18 @@ public class BonEntree extends javax.swing.JFrame {
         jLabel14.setText("Numéro :");
         jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 70, 40));
 
-        num_pro_update_txt.setBackground(new java.awt.Color(255, 255, 255));
-        num_pro_update_txt.addMouseListener(new java.awt.event.MouseAdapter() {
+        num_bonEntree_update_txt.setBackground(new java.awt.Color(255, 255, 255));
+        num_bonEntree_update_txt.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                num_pro_update_txtMouseReleased(evt);
+                num_bonEntree_update_txtMouseReleased(evt);
             }
         });
-        num_pro_update_txt.addActionListener(new java.awt.event.ActionListener() {
+        num_bonEntree_update_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                num_pro_update_txtActionPerformed(evt);
+                num_bonEntree_update_txtActionPerformed(evt);
             }
         });
-        jPanel1.add(num_pro_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 110, 40));
+        jPanel1.add(num_bonEntree_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 110, 40));
 
         num_produit_update_txt.setBackground(new java.awt.Color(255, 255, 255));
         num_produit_update_txt.addActionListener(new java.awt.event.ActionListener() {
@@ -147,7 +205,7 @@ public class BonEntree extends javax.swing.JFrame {
         });
         jPanel1.add(quantité_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 210, 110, 40));
 
-        maj_btn1.setBackground(new java.awt.Color(0, 0, 86));
+        maj_btn1.setBackground(new java.awt.Color(255, 255, 255));
         maj_btn1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         maj_btn1.setForeground(new java.awt.Color(0, 0, 86));
         maj_btn1.setText("Modifier");
@@ -165,7 +223,7 @@ public class BonEntree extends javax.swing.JFrame {
         });
         jPanel1.add(maj_btn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 340, 90, 40));
 
-        delete_btn.setBackground(new java.awt.Color(255, 229, 255));
+        delete_btn.setBackground(new java.awt.Color(255, 255, 255));
         delete_btn.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         delete_btn.setForeground(new java.awt.Color(0, 0, 86));
         delete_btn.setText("Supprimer");
@@ -198,6 +256,12 @@ public class BonEntree extends javax.swing.JFrame {
 
         MenuContent.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 90, 220, 400));
 
+        jLabel3.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel3.setFont(new java.awt.Font("Gill Sans MT", 0, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel3.setText("Liste des bons d'entrée d'Invigo.");
+        MenuContent.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, -1));
+
         getContentPane().add(MenuContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 0, 760, 510));
 
         SidebarPanel.setBackground(new java.awt.Color(0, 0, 86));
@@ -214,23 +278,38 @@ public class BonEntree extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_maximize.png"))); // NOI18N
-        jLabel4.setText("Bonde sortie");
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_maximize.png")); // NOI18N
+        jLabel4.setText("Bon de sortie");
         jLabel4.setToolTipText("");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
         SidebarPanel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_product.png"))); // NOI18N
+        jLabel6.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_product.png")); // NOI18N
         jLabel6.setText("Produits");
         jLabel6.setToolTipText("");
+        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel6MouseClicked(evt);
+            }
+        });
         SidebarPanel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
 
         jLabel7.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_minimize.png"))); // NOI18N
-        jLabel7.setText("Bonde entrée");
+        jLabel7.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_minimize.png")); // NOI18N
+        jLabel7.setText("Bon de entrée");
         jLabel7.setToolTipText("");
+        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel7MouseClicked(evt);
+            }
+        });
         SidebarPanel.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, -1, -1));
 
         getContentPane().add(SidebarPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 510));
@@ -238,13 +317,13 @@ public class BonEntree extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void num_pro_update_txtMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_num_pro_update_txtMouseReleased
+    private void num_bonEntree_update_txtMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_num_bonEntree_update_txtMouseReleased
 
-    }//GEN-LAST:event_num_pro_update_txtMouseReleased
+    }//GEN-LAST:event_num_bonEntree_update_txtMouseReleased
 
-    private void num_pro_update_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_pro_update_txtActionPerformed
+    private void num_bonEntree_update_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_bonEntree_update_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_num_pro_update_txtActionPerformed
+    }//GEN-LAST:event_num_bonEntree_update_txtActionPerformed
 
     private void num_produit_update_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_produit_update_txtActionPerformed
         // TODO add your handling code here:
@@ -259,30 +338,27 @@ public class BonEntree extends javax.swing.JFrame {
     }//GEN-LAST:event_maj_btn1MouseClicked
 
     private void maj_btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maj_btn1ActionPerformed
-        //        DefaultTableModel model = (DefaultTableModel)table_achat.getModel();
-        //
-        //        String id = (table_achat.getModel().getValueAt(table_achat.getSelectedRow(),5)).toString();
-        //
-        //        try{
-            //            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/evarotra?serverTimezone=UTC&useSSL=false", "root", "yop!123*");
-            //
-            //            String sql = "update achat set numCli = ?, numMat = ?, qte = ?, date_achat = ? where id = ?";
-            //            pst = con.prepareStatement(sql);
-            //
-            //            pst.setString(1, num_cli_update_txt.getText());
-            //            pst.setString(2, num_mat_update_txt.getText());
-            //            pst.setString(3, qte_update_txt.getText());
-            //            pst.setString(4, date_achat_update_txt.getText());
-            //            pst.setString(5, id);
-            //
-            //            pst.executeUpdate();
-            //
-            //            con.close();
-            //            JOptionPane.showMessageDialog(null, "Matériel mis à jour !");
-            //            ListeAchat();
-            //        } catch(Exception e){
-            //            e.printStackTrace();
-            //        }
+        String id = (jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0)).toString();
+
+        try {
+            String endpoint = "/entree/" + id;
+            String jsonBody = "{\n"
+                    + "    \"numBondeEntree\": " + num_bonEntree_update_txt.getText() + ",\n"
+                    + "    \"numProduit\": " + num_produit_update_txt.getText() + ",\n"
+                    + "    \"qteEntree\": " + quantité_update_txt.getText() + ",\n"
+                    + "    \"dateEntree\": \"" + date_entree_update_txt1.getText() + "\"\n"
+                    + "}";
+
+            System.out.println(jsonBody);
+
+            // Call the request
+            HttpCallActions.PUT(endpoint, jsonBody, HttpCallActions.getNonSSLClient());
+            JOptionPane.showMessageDialog(null, "Bon d'entrée mis à jour !");
+            getAllEntree();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_maj_btn1ActionPerformed
 
     private void delete_btnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_delete_btnMouseClicked
@@ -290,57 +366,75 @@ public class BonEntree extends javax.swing.JFrame {
     }//GEN-LAST:event_delete_btnMouseClicked
 
     private void delete_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_btnActionPerformed
-        //        DefaultTableModel model = (DefaultTableModel)table_achat.getModel();
-        //        int selectionner = table_achat.getSelectedRow();
-        //
-        //        String id = (table_achat.getModel().getValueAt(table_achat.getSelectedRow(),5)).toString();
-        //
-        //        String numMat = (model.getValueAt(selectionner, 1)).toString();
-        //        String qte = (model.getValueAt(selectionner, 2)).toString();
-        //
-        //        try{
-            //            //Suppresion dans la liste des achats
-            //            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/evarotra?serverTimezone=UTC&useSSL=false", "root", "yop!123*");
-            //            String sql = "delete from Achat where id=?";
-            //            pst = con.prepareStatement(sql);
-            //
-            //            pst.setString(1, id);
-            //
-            //            pst.executeUpdate();
-            //
-            //            //Update pour le stock du matériel acheté
-            //            int stock = 0;
-            //            String sql2 = "select Stock from Matériel where numMat like '%"+numMat+"%'";
-            //            Statement st = con.createStatement();
-            //            rs = st.executeQuery(sql2);
-            //
-            //            while(rs.next()){
-                //                stock = Integer.parseInt(rs.getString("Stock"));
-                //            }
-            //
-            //            stock = stock + Integer.parseInt(qte);
-            //
-            //            String sql3 = "update Matériel set Stock= ? where numMat=?";
-            //            pst = con.prepareStatement(sql3);
-            //
-            //            pst.setString(1, String.valueOf(stock));
-            //            pst.setString(2, numMat);
-            //
-            //            pst.executeUpdate();
-            //
-            //            JOptionPane.showMessageDialog(null, "Suppression effectué !");
-            //
-            //            con.close();
-            //
-            //            ListeAchat();
-            //        } catch(Exception e){
-            //            e.printStackTrace();
-            //        }
+        int result = JOptionPane.showConfirmDialog(null, "Êtes vous sûr de vouloir supprimer ce bon d'entrée ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+
+        if (result == JOptionPane.YES_OPTION) {
+            String id = (jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0)).toString();
+            try {
+                String endpoint = "/entree/" + id;
+                String jsonBody = "{\"numProduit\": " + num_produit_update_txt.getText() + "}";
+                System.out.println(jsonBody + id);
+
+                // Call the request
+                HttpCallActions.DELETE(endpoint, jsonBody, HttpCallActions.getNonSSLClient());
+                JOptionPane.showMessageDialog(null, "Bon d'entrée supprimé !");
+                getAllEntree();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            // User clicked "No" button or closed the dialog
+            // Do nothing or handle accordingly
+        }
     }//GEN-LAST:event_delete_btnActionPerformed
 
     private void date_entree_update_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_date_entree_update_txt1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_date_entree_update_txt1ActionPerformed
+
+    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel7MouseClicked
+
+    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+        // TODO add your handling code here:
+        BonEntree.super.dispose();
+        Produit produit = null;
+        try {
+            produit = new Produit();
+        } catch (ParseException ex) {
+            Logger.getLogger(BonEntree.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        produit.setVisible(true);
+    }//GEN-LAST:event_jLabel6MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        // TODO add your handling code here:
+        BonEntree.super.dispose();
+        BonSortie bonSortie = null;
+        try {
+            bonSortie = new BonSortie();
+        } catch (ParseException ex) {
+            Logger.getLogger(BonEntree.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        bonSortie.setVisible(true);
+    }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        AjouterBonEntree ajoutBonEntree = new AjouterBonEntree();
+        ajoutBonEntree.setVisible(true);
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jTable1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseReleased
+        int i = jTable1.getSelectedRow();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+
+        num_bonEntree_update_txt.setText(model.getValueAt(i, 0).toString());
+        num_produit_update_txt.setText(model.getValueAt(i, 1).toString());
+        quantité_update_txt.setText(model.getValueAt(i, 2).toString());
+        date_entree_update_txt1.setText(model.getValueAt(i, 3).toString());
+    }//GEN-LAST:event_jTable1MouseReleased
 
     /**
      * @param args the command line arguments
@@ -372,7 +466,11 @@ public class BonEntree extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new BonEntree().setVisible(true);
+                try {
+                    new BonEntree().setVisible(true);
+                } catch (ParseException ex) {
+                    Logger.getLogger(BonEntree.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -389,18 +487,18 @@ public class BonEntree extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTable jTable1;
     private javax.swing.JButton maj_btn1;
-    private javax.swing.JTextField num_pro_update_txt;
+    private javax.swing.JTextField num_bonEntree_update_txt;
     private javax.swing.JTextField num_produit_update_txt;
     private javax.swing.JTextField quantité_update_txt;
     // End of variables declaration//GEN-END:variables

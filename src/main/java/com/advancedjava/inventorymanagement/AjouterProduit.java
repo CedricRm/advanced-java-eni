@@ -4,6 +4,9 @@
  */
 package com.advancedjava.inventorymanagement;
 
+import com.advancedjava.invetorymanagement.httpappache.HttpCallActions;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Cedric
@@ -81,7 +84,12 @@ public class AjouterProduit extends javax.swing.JFrame {
         jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 4, -1, -1));
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/exit_button.png"))); // NOI18N
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\exit_button.png")); // NOI18N
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 0, 30, 30));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 90));
@@ -134,7 +142,7 @@ public class AjouterProduit extends javax.swing.JFrame {
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton2.setBackground(new java.awt.Color(41, 39, 41));
+        jButton2.setBackground(new java.awt.Color(0, 0, 86));
         jButton2.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Ajouter");
@@ -154,7 +162,7 @@ public class AjouterProduit extends javax.swing.JFrame {
         });
         jPanel4.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 120, 40));
 
-        jButton1.setBackground(new java.awt.Color(42, 39, 41));
+        jButton1.setBackground(new java.awt.Color(0, 0, 86));
         jButton1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Réinitialiser");
@@ -186,7 +194,7 @@ public class AjouterProduit extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel13AncestorAdded
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
-        AjoutClient.super.dispose();
+//        AjoutClient.super.dispose();
     }//GEN-LAST:event_jLabel13MouseClicked
 
     private void num_produit_add_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_num_produit_add_txtActionPerformed
@@ -207,18 +215,19 @@ public class AjouterProduit extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        try{
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/evarotra?serverTimezone=UTC&useSSL=false", "root", "yop!123*");
-            String sql = "insert into Client (NumCli, NomCli) values (?,?)";
-            pst = con.prepareStatement(sql);
-            pst.setString(1, num_produit_add_txt.getText());
-            pst.setString(2, designation_add_txt.getText());
+        try {
+            // Construct the JSON body for creating the item
+            String jsonBody = "{\n"
+                    + "    \"numProd\": \"" + num_produit_add_txt.getText() + "\",\n"
+                    + "    \"design\": \"" + designation_add_txt.getText() + "\",\n"
+                    + "    \"stock\": \"" + stock_add_txt1.getText() + "\"\n"
+                    + "}";
 
-            pst.executeUpdate();
-            con.close();
-            JOptionPane.showMessageDialog(null, "Ajout réussi !");
-
-        }catch(Exception e){
+            // Make the HTTP POST request to create the item
+            String endpoint = "/produit";
+            HttpCallActions.POST(endpoint, jsonBody, HttpCallActions.getNonSSLClient());
+            JOptionPane.showMessageDialog(null, "Produit créé !");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_jButton2MouseClicked
@@ -230,6 +239,10 @@ public class AjouterProduit extends javax.swing.JFrame {
     private void stock_add_txt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stock_add_txt1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_stock_add_txt1ActionPerformed
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        AjouterProduit.super.dispose();
+    }//GEN-LAST:event_jLabel4MouseClicked
 
     /**
      * @param args the command line arguments

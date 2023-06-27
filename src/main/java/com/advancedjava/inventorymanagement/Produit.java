@@ -4,6 +4,20 @@
  */
 package com.advancedjava.inventorymanagement;
 
+import com.advancedjava.invetorymanagement.httpappache.HttpCallActions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ParseException;
+
 /**
  *
  * @author Cedric
@@ -13,8 +27,84 @@ public class Produit extends javax.swing.JFrame {
     /**
      * Creates new form Slash
      */
-    public Produit() {
+    public Produit() throws ParseException {
         initComponents();
+        getAllProduit();
+    }
+
+    private void getAllProduit() throws ParseException {
+        String[] Matériel = {"Num produit", "Designation", "Stock"};
+        String[] Ajouter = new String[4];
+        DefaultTableModel model = new DefaultTableModel(null, Matériel);
+        String endpoint = "/produit";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        JsonArray responseData = HttpCallActions.GET(endpoint, HttpCallActions.getNonSSLClient());
+
+        if (responseData != null) {
+            System.out.println("Response Data: " + responseData);
+
+            // Iterate over the elements in the JsonArray
+            for (JsonElement element : responseData) {
+                if (element.isJsonObject()) {
+                    JsonObject jsonObject = element.getAsJsonObject();
+
+                    // Access the properties of each object in the JsonArray
+                    String numProduit = jsonObject.get("numProduit").getAsString();
+                    String designation = jsonObject.get("design").getAsString();
+                    int stock = jsonObject.get("stock").getAsInt();
+
+                    // Process the retrieved data as needed
+                    System.out.println("Num produit: " + numProduit);
+                    System.out.println("Designation: " + designation);
+                    System.out.println("Stock: " + stock);
+
+                    // Add the data to your table model or perform other operations
+                    model.addRow(new Object[]{numProduit, designation, stock});
+                }
+            }
+            jTable1.setModel(model);
+        } else {
+            System.out.println("No response data received.");
+        }
+    }
+
+    private void searchProduit(String query) throws ParseException {
+        String[] Matériel = {"Num produit", "Designation", "Stock"};
+        DefaultTableModel model = new DefaultTableModel(null, Matériel);
+        String endpoint = "/search";
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        JsonArray responseData = HttpCallActions.SEARCH(endpoint, query, HttpCallActions.getNonSSLClient());
+
+        if (responseData != null) {
+            System.out.println("Response Data: " + responseData);
+
+            // Iterate over the elements in the JsonArray
+            for (JsonElement element : responseData) {
+                if (element.isJsonObject()) {
+                    JsonObject jsonObject = element.getAsJsonObject();
+
+                    // Access the properties of each object in the JsonArray
+                    String numProduit = jsonObject.get("numProduit").getAsString();
+                    String designation = jsonObject.get("design").getAsString();
+                    int stock = jsonObject.get("stock").getAsInt();
+
+                    // Process the retrieved data as needed
+                    System.out.println("Num produit: " + numProduit);
+                    System.out.println("Designation: " + designation);
+                    System.out.println("Stock: " + stock);
+
+                    // Add the data to your table model or perform other operations
+                    model.addRow(new Object[]{numProduit, designation, stock});
+                }
+            }
+        } else {
+            System.out.println("No response data received.");
+            // Clear the table model
+            model.setRowCount(0);
+        }
+
+        // Set the table model
+        jTable1.setModel(model);
     }
 
     /**
@@ -35,7 +125,6 @@ public class Produit extends javax.swing.JFrame {
         MenuContent = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -49,9 +138,12 @@ public class Produit extends javax.swing.JFrame {
         stock_update_txt = new javax.swing.JTextField();
         maj_btn1 = new javax.swing.JButton();
         delete_btn = new javax.swing.JButton();
-        rechercher_codeProduit = new javax.swing.JTextField();
+        recherche_produit_txt = new javax.swing.JTextField();
         recherche_opt = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        mouvement_btn = new javax.swing.JButton();
+        etat_de_stock_btn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -70,23 +162,38 @@ public class Produit extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_maximize.png"))); // NOI18N
-        jLabel4.setText("Bonde sortie");
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_maximize.png")); // NOI18N
+        jLabel4.setText("Bon de sortie");
         jLabel4.setToolTipText("");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
         SidebarPanel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_product.png"))); // NOI18N
+        jLabel6.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_product.png")); // NOI18N
         jLabel6.setText("Produits");
         jLabel6.setToolTipText("");
         SidebarPanel.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
 
         jLabel7.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_minimize.png"))); // NOI18N
-        jLabel7.setText("Bonde entrée");
+        jLabel7.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_minimize.png")); // NOI18N
+        jLabel7.setText("Bon de entrée");
         jLabel7.setToolTipText("");
+        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel7MouseClicked(evt);
+            }
+        });
+        jLabel7.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jLabel7KeyPressed(evt);
+            }
+        });
         SidebarPanel.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, -1, -1));
 
         getContentPane().add(SidebarPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 510));
@@ -95,7 +202,12 @@ public class Produit extends javax.swing.JFrame {
         MenuContent.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_add.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Cedric\\Documents\\NetBeansProjects\\inventoryManagement\\src\\main\\java\\com\\advancedjava\\inventorymanagement\\assets\\img_add.png")); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
         MenuContent.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 10, 40, 50));
 
         jLabel5.setBackground(new java.awt.Color(0, 0, 86));
@@ -103,10 +215,7 @@ public class Produit extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(0, 0, 86));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Produits");
-        MenuContent.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 20, 100, 40));
-
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/advancedjava/inventorymanagement/assets/img_left_arrow.png"))); // NOI18N
-        MenuContent.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(37, 20, 40, 40));
+        MenuContent.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 100, 40));
 
         jSeparator2.setBackground(new java.awt.Color(255, 255, 255));
         jSeparator2.setForeground(new java.awt.Color(204, 204, 204));
@@ -123,9 +232,14 @@ public class Produit extends javax.swing.JFrame {
 
             }
         ));
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTable1MouseReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
-        MenuContent.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, 420, 310));
+        MenuContent.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, 420, 320));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 86));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -162,17 +276,17 @@ public class Produit extends javax.swing.JFrame {
                 designation_update_txtActionPerformed(evt);
             }
         });
-        jPanel1.add(designation_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, 110, 40));
+        jPanel1.add(designation_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 160, 110, 40));
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setText("Désignation :");
-        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, 90, 40));
+        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 90, 40));
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setText("Stock :");
-        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 250, 50, 40));
+        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 50, 40));
 
         stock_update_txt.setBackground(new java.awt.Color(255, 255, 255));
         stock_update_txt.addActionListener(new java.awt.event.ActionListener() {
@@ -180,9 +294,9 @@ public class Produit extends javax.swing.JFrame {
                 stock_update_txtActionPerformed(evt);
             }
         });
-        jPanel1.add(stock_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 250, 110, 40));
+        jPanel1.add(stock_update_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 210, 110, 40));
 
-        maj_btn1.setBackground(new java.awt.Color(0, 0, 86));
+        maj_btn1.setBackground(new java.awt.Color(255, 255, 255));
         maj_btn1.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         maj_btn1.setForeground(new java.awt.Color(0, 0, 86));
         maj_btn1.setText("Modifier");
@@ -198,9 +312,9 @@ public class Produit extends javax.swing.JFrame {
                 maj_btn1ActionPerformed(evt);
             }
         });
-        jPanel1.add(maj_btn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 340, 90, 40));
+        jPanel1.add(maj_btn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 270, 90, 40));
 
-        delete_btn.setBackground(new java.awt.Color(255, 229, 255));
+        delete_btn.setBackground(new java.awt.Color(255, 255, 255));
         delete_btn.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         delete_btn.setForeground(new java.awt.Color(0, 0, 86));
         delete_btn.setText("Supprimer");
@@ -216,39 +330,87 @@ public class Produit extends javax.swing.JFrame {
                 delete_btnActionPerformed(evt);
             }
         });
-        jPanel1.add(delete_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 340, 100, 40));
+        jPanel1.add(delete_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 270, 100, 40));
 
-        MenuContent.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 90, 220, 400));
+        MenuContent.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 90, 220, 330));
 
-        rechercher_codeProduit.addActionListener(new java.awt.event.ActionListener() {
+        recherche_produit_txt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rechercher_codeProduitActionPerformed(evt);
+                recherche_produit_txtActionPerformed(evt);
             }
         });
-        rechercher_codeProduit.addKeyListener(new java.awt.event.KeyAdapter() {
+        recherche_produit_txt.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                rechercher_codeProduitKeyReleased(evt);
+                recherche_produit_txtKeyReleased(evt);
             }
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                rechercher_codeProduitKeyTyped(evt);
+                recherche_produit_txtKeyTyped(evt);
             }
         });
-        MenuContent.add(rechercher_codeProduit, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 270, 40));
+        MenuContent.add(recherche_produit_txt, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 240, 40));
 
         recherche_opt.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
-        recherche_opt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Code", "Désignation" }));
+        recherche_opt.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Numéro", "Désignation" }));
         recherche_opt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 recherche_optActionPerformed(evt);
             }
         });
-        MenuContent.add(recherche_opt, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, 140, 40));
+        MenuContent.add(recherche_opt, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 130, 100, 40));
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
         jLabel3.setFont(new java.awt.Font("Gill Sans MT", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(102, 102, 102));
         jLabel3.setText("Liste des produits actuellement en stock chez Invigo.");
         MenuContent.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, -1));
+
+        jButton1.setText("Rechercher");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        MenuContent.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 130, 60, 40));
+
+        mouvement_btn.setBackground(new java.awt.Color(255, 255, 255));
+        mouvement_btn.setFont(new java.awt.Font("Gill Sans MT", 0, 12)); // NOI18N
+        mouvement_btn.setForeground(new java.awt.Color(0, 0, 86));
+        mouvement_btn.setText("MOUVEMENT DE STOCK");
+        mouvement_btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                mouvement_btnMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                mouvement_btnMouseReleased(evt);
+            }
+        });
+        mouvement_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mouvement_btnActionPerformed(evt);
+            }
+        });
+        MenuContent.add(mouvement_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 470, 220, 30));
+
+        etat_de_stock_btn.setBackground(new java.awt.Color(255, 255, 255));
+        etat_de_stock_btn.setFont(new java.awt.Font("Gill Sans MT", 0, 12)); // NOI18N
+        etat_de_stock_btn.setForeground(new java.awt.Color(0, 0, 86));
+        etat_de_stock_btn.setText("ETAT DE STOCK");
+        etat_de_stock_btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                etat_de_stock_btnMouseClicked(evt);
+            }
+        });
+        etat_de_stock_btn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                etat_de_stock_btnActionPerformed(evt);
+            }
+        });
+        MenuContent.add(etat_de_stock_btn, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 430, 220, 30));
 
         getContentPane().add(MenuContent, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 0, 760, 510));
 
@@ -276,133 +438,173 @@ public class Produit extends javax.swing.JFrame {
     }//GEN-LAST:event_maj_btn1MouseClicked
 
     private void maj_btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maj_btn1ActionPerformed
-//        DefaultTableModel model = (DefaultTableModel)table_achat.getModel();
-//
-//        String id = (table_achat.getModel().getValueAt(table_achat.getSelectedRow(),5)).toString();
-//
-//        try{
-//            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/evarotra?serverTimezone=UTC&useSSL=false", "root", "yop!123*");
-//
-//            String sql = "update achat set numCli = ?, numMat = ?, qte = ?, date_achat = ? where id = ?";
-//            pst = con.prepareStatement(sql);
-//
-//            pst.setString(1, num_cli_update_txt.getText());
-//            pst.setString(2, num_mat_update_txt.getText());
-//            pst.setString(3, qte_update_txt.getText());
-//            pst.setString(4, date_achat_update_txt.getText());
-//            pst.setString(5, id);
-//
-//            pst.executeUpdate();
-//
-//            con.close();
-//            JOptionPane.showMessageDialog(null, "Matériel mis à jour !");
-//            ListeAchat();
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
+        String id = (jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0)).toString();
+
+        try {
+            String endpoint = "/produit/" + id;
+            String jsonBody = "{\n"
+                    + "    \"numProd\": \"" + num_pro_update_txt.getText() + "\",\n"
+                    + "    \"design\": \"" + designation_update_txt.getText() + "\",\n"
+                    + "    \"stock\": \"" + stock_update_txt.getText() + "\"\n"
+                    + "}";
+
+            // Call the request
+            HttpCallActions.PUT(endpoint, jsonBody, HttpCallActions.getNonSSLClient());
+            JOptionPane.showMessageDialog(null, "Produit mis à jour !");
+            getAllProduit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_maj_btn1ActionPerformed
 
     private void delete_btnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_delete_btnMouseClicked
+        int result = JOptionPane.showConfirmDialog(null, "Êtes vous sûr de vouloir supprimer ce produit ?", "Confirmation", JOptionPane.YES_NO_OPTION);
 
+        if (result == JOptionPane.YES_OPTION) {
+            String id = (jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0)).toString();
+            try {
+                String endpoint = "/produit/" + id;
+
+                // Call the request
+                HttpCallActions.DELETE(endpoint, null, HttpCallActions.getNonSSLClient());
+                JOptionPane.showMessageDialog(null, "Produit supprimé !");
+                getAllProduit();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            // User clicked "No" button or closed the dialog
+            // Do nothing or handle accordingly
+        }
     }//GEN-LAST:event_delete_btnMouseClicked
 
     private void delete_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_btnActionPerformed
-//        DefaultTableModel model = (DefaultTableModel)table_achat.getModel();
-//        int selectionner = table_achat.getSelectedRow();
-//
-//        String id = (table_achat.getModel().getValueAt(table_achat.getSelectedRow(),5)).toString();
-//
-//        String numMat = (model.getValueAt(selectionner, 1)).toString();
-//        String qte = (model.getValueAt(selectionner, 2)).toString();
-//
-//        try{
-//            //Suppresion dans la liste des achats
-//            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/evarotra?serverTimezone=UTC&useSSL=false", "root", "yop!123*");
-//            String sql = "delete from Achat where id=?";
-//            pst = con.prepareStatement(sql);
-//
-//            pst.setString(1, id);
-//
-//            pst.executeUpdate();
-//
-//            //Update pour le stock du matériel acheté
-//            int stock = 0;
-//            String sql2 = "select Stock from Matériel where numMat like '%"+numMat+"%'";
-//            Statement st = con.createStatement();
-//            rs = st.executeQuery(sql2);
-//
-//            while(rs.next()){
-//                stock = Integer.parseInt(rs.getString("Stock"));
-//            }
-//
-//            stock = stock + Integer.parseInt(qte);
-//
-//            String sql3 = "update Matériel set Stock= ? where numMat=?";
-//            pst = con.prepareStatement(sql3);
-//
-//            pst.setString(1, String.valueOf(stock));
-//            pst.setString(2, numMat);
-//
-//            pst.executeUpdate();
-//
-//            JOptionPane.showMessageDialog(null, "Suppression effectué !");
-//
-//            con.close();
-//
-//            ListeAchat();
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
+
     }//GEN-LAST:event_delete_btnActionPerformed
 
-    private void rechercher_codeProduitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rechercher_codeProduitActionPerformed
+    private void recherche_produit_txtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recherche_produit_txtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_rechercher_codeProduitActionPerformed
+    }//GEN-LAST:event_recherche_produit_txtActionPerformed
 
-    private void rechercher_codeProduitKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_rechercher_codeProduitKeyReleased
-//        String recherche_opt_value = (String)recherche_opt.getSelectedItem();
-//        if(recherche_opt_value == "Tout"){
-//            RechercherAchat(rechercher_codeProduit.getText());
-//        }
-//        if(recherche_opt_value == "Deux dates"){
-//            RechercherAchat(rechercher_codeProduit.getText(), day1_value.getText(), day2_value.getText());
-//        }
-//
-//        if(recherche_opt_value == "Un mois"){
-//            RechercherAchat(rechercher_codeProduit.getText(), month_value.getText());
-//        }
-//
-//        if(recherche_opt_value == "Une année"){
-//            RechercherAchatAnnée(rechercher_codeProduit.getText(), year_value.getText());
-//        }
-    }//GEN-LAST:event_rechercher_codeProduitKeyReleased
+    private void recherche_produit_txtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_recherche_produit_txtKeyReleased
 
-    private void rechercher_codeProduitKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_rechercher_codeProduitKeyTyped
+    }//GEN-LAST:event_recherche_produit_txtKeyReleased
+
+    private void recherche_produit_txtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_recherche_produit_txtKeyTyped
         // TODO add your handling code here:
-    }//GEN-LAST:event_rechercher_codeProduitKeyTyped
+    }//GEN-LAST:event_recherche_produit_txtKeyTyped
 
     private void recherche_optActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recherche_optActionPerformed
-//        String recherche_opt_value = (String)recherche_opt.getSelectedItem();
-//        if(recherche_opt_value == "Tout"){
-//            opt_panel.setVisible(false);
-//        }
-//        if(recherche_opt_value == "Deux dates"){
-//            opt_panel.setVisible(true);
-//            opt_1.setVisible(true);
-//        }
-//        if(recherche_opt_value == "Un mois"){
-//            opt_panel.setVisible(true);
-//            opt_1.setVisible(false);
-//            opt_2.setVisible(true);
-//
-//        }
-//        if(recherche_opt_value == "Une année"){
-//            opt_panel.setVisible(true);
-//            opt_1.setVisible(false);
-//            opt_2.setVisible(false);
-//            opt_3.setVisible(true);
-//        }
+
     }//GEN-LAST:event_recherche_optActionPerformed
+
+    private void jTable1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseReleased
+        int i = jTable1.getSelectedRow();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+
+        num_pro_update_txt.setText(model.getValueAt(i, 0).toString());
+        designation_update_txt.setText(model.getValueAt(i, 1).toString());
+        stock_update_txt.setText(model.getValueAt(i, 2).toString());
+    }//GEN-LAST:event_jTable1MouseReleased
+
+    private void jLabel7KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jLabel7KeyPressed
+        Produit.super.dispose();
+        BonEntree bonEntree = null;
+        try {
+            bonEntree = new BonEntree();
+        } catch (ParseException ex) {
+            Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        bonEntree.setVisible(true);
+    }//GEN-LAST:event_jLabel7KeyPressed
+
+    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
+        // TODO add your handling code here:
+        Produit.super.dispose();
+        BonEntree bonEntree = null;
+        try {
+            bonEntree = new BonEntree();
+        } catch (ParseException ex) {
+            Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        bonEntree.setVisible(true);
+    }//GEN-LAST:event_jLabel7MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        // TODO add your handling code here:
+        Produit.super.dispose();
+        BonSortie bonSortie = null;
+        try {
+            bonSortie = new BonSortie();
+        } catch (ParseException ex) {
+            Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        bonSortie.setVisible(true);
+    }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        AjouterProduit ajoutProduit = new AjouterProduit();
+        ajoutProduit.setVisible(true);
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        String recherche_opt_value = (String) recherche_opt.getSelectedItem();
+        if (recherche_opt_value == "Numéro") {
+            try {
+                searchProduit("numProduit" + recherche_produit_txt.getText());
+            } catch (ParseException ex) {
+                Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        if (recherche_opt_value == "Désignation") {
+            try {
+                searchProduit("design" + recherche_produit_txt.getText());
+            } catch (ParseException ex) {
+                Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    private void mouvement_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mouvement_btnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mouvement_btnActionPerformed
+
+    private void etat_de_stock_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_etat_de_stock_btnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_etat_de_stock_btnActionPerformed
+
+    private void etat_de_stock_btnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_etat_de_stock_btnMouseClicked
+        Produit.super.dispose();
+        EtatStock etatStock = null;
+        try {
+            etatStock = new EtatStock();
+        } catch (ParseException ex) {
+            Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        etatStock.setVisible(true);
+    }//GEN-LAST:event_etat_de_stock_btnMouseClicked
+
+    private void mouvement_btnMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouvement_btnMouseReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mouvement_btnMouseReleased
+
+    private void mouvement_btnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mouvement_btnMouseClicked
+        Produit.super.dispose();
+        MouvementStock mouvementStock = null;
+        try {
+            mouvementStock = new MouvementStock();
+        } catch (ParseException ex) {
+            Logger.getLogger(Produit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        mouvementStock.setVisible(true);
+    }//GEN-LAST:event_mouvement_btnMouseClicked
 
     /**
      * @param args the command line arguments
@@ -418,16 +620,24 @@ public class Produit extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Produit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Produit.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Produit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Produit.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Produit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Produit.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Produit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Produit.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -435,7 +645,13 @@ public class Produit extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Produit().setVisible(true);
+                try {
+                    new Produit().setVisible(true);
+
+                } catch (ParseException ex) {
+                    Logger.getLogger(Produit.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -445,6 +661,8 @@ public class Produit extends javax.swing.JFrame {
     private javax.swing.JPanel SidebarPanel;
     private javax.swing.JButton delete_btn;
     private javax.swing.JTextField designation_update_txt;
+    private javax.swing.JButton etat_de_stock_btn;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -456,16 +674,16 @@ public class Produit extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTable jTable1;
     private javax.swing.JButton maj_btn1;
+    private javax.swing.JButton mouvement_btn;
     private javax.swing.JTextField num_pro_update_txt;
     private javax.swing.JComboBox<String> recherche_opt;
-    private javax.swing.JTextField rechercher_codeProduit;
+    private javax.swing.JTextField recherche_produit_txt;
     private javax.swing.JTextField stock_update_txt;
     // End of variables declaration//GEN-END:variables
 }
